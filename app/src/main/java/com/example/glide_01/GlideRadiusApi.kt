@@ -9,12 +9,15 @@ import com.bumptech.glide.Priority
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
 import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.BaseRequestOptions
 import com.bumptech.glide.request.RequestOptions
-import jp.wasabeef.glide.transformations.BlurTransformation
 
 
 @GlideExtension
@@ -158,7 +161,7 @@ object GlideRadiusApi {
      * @describe 加载高斯模糊大图
      * @param ambiguity 模糊度  eg ：80
      * DecodeFormat.PREFER_RGB_565 比ARGB_8888格式少一半的内存
-     * PNG格式可以保存为透明背景的图片，JPEG就不可以，jpeg是一种有损压缩的图片格式
+     * 高斯模糊不能用  !!.override(width, height) 采样率压缩
      */
     @JvmStatic
     @JvmOverloads
@@ -174,11 +177,42 @@ object GlideRadiusApi {
         height: Int
     ): BaseRequestOptions<*> {
         val roundedCorners = RoundedCorners(roundedCorners)
+        val multiTransformation = MultiTransformation(
+            BlurTransformation(
+                App.instance,
+                blurTransformationRadius,
+                blurTransformationsampling
+            ), roundedCorners
+        )
         //通过RequestOptions扩展功能,override:采样率,因为ImageView就这么大,可以压缩图片,降低内存消耗
-        val override = blurTransformation(
-            roundedCorners,
-            BlurTransformation(App.instance, blurTransformationRadius, blurTransformationsampling)
-        )!!.override(width, height)
+        val override = blurTransformation(multiTransformation)
+        return options
+            .placeholder(getPlaceholderImage())
+            .error(getErrorImage())
+            .apply(override!!)
+            .format(DecodeFormat.PREFER_RGB_565)
+            .encodeFormat(Bitmap.CompressFormat.PNG)
+    }
+
+    /**
+     * 加载Gif图片
+     * roundedCorners：传入的圆角大小
+     * DecodeFormat.PREFER_RGB_565 比ARGB_8888格式少一半的内存
+     * PNG格式可以保存为透明背景的图片，JPEG就不可以，jpeg是一种有损压缩的图片格式
+     */
+    @JvmStatic
+    @JvmOverloads
+    @GlideOption
+    @CheckResult
+    fun applyGifImage(
+        options: BaseRequestOptions<*>,
+        roundedCorners: Int,
+        width: Int,
+        height: Int
+    ): BaseRequestOptions<*> {
+        val roundedCorners = RoundedCorners(roundedCorners)
+        //通过RequestOptions扩展功能,override:采样率,因为ImageView就这么大,可以压缩图片,降低内存消耗
+        val override = bitmapTransform(roundedCorners)!!.override(width, height)
         return options
             .centerCrop()
             .placeholder(getPlaceholderImage())
@@ -198,11 +232,9 @@ object GlideRadiusApi {
     @JvmOverloads
     @CheckResult
     private fun blurTransformation(
-        transformation: BitmapTransformation,
-        blurTransformation: BlurTransformation
+        multiTransformation: Transformation<Bitmap>
     ): RequestOptions? {
-        return RequestOptions().transform(transformation, blurTransformation)
-            .priority(Priority.NORMAL)
+        return RequestOptions.bitmapTransform(multiTransformation).priority(Priority.NORMAL)
     }
 
     /**
