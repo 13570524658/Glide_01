@@ -17,29 +17,35 @@
         <ImageView
             android:id="@+id/ivCircleAvatarImage"
             android:layout_width="200dp"
-            android:layout_height="200dp" />
+            android:layout_height="200dp"
+            android:src="@drawable/default_placeholder"/>
 
         <ImageView
             android:id="@+id/ivRoundAvatarImage"
             android:layout_width="200dp"
-            android:layout_height="200dp" />
+            android:layout_height="200dp"
+            android:src="@drawable/default_placeholder"/>
         <ImageView
             android:id="@+id/ivRoundImage"
             android:layout_width="200dp"
-            android:layout_height="200dp" />
+            android:layout_height="200dp"
+            android:src="@drawable/default_placeholder"/>
         <ImageView
             android:id="@+id/ivThumbnailImage"
             android:layout_width="200dp"
-            android:layout_height="200dp" />
+            android:layout_height="200dp"
+            android:src="@drawable/default_placeholder"/>
 
         <ImageView
             android:id="@+id/ivTransformImage"
             android:layout_width="200dp"
-            android:layout_height="200dp" />
+            android:layout_height="200dp"
+            android:src="@drawable/default_placeholder"/>
         <ImageView
             android:id="@+id/ivGifImage"
             android:layout_width="200dp"
-            android:layout_height="200dp" />
+            android:layout_height="200dp"
+            android:src="@drawable/default_placeholder"/>
     </LinearLayout>
 </ScrollView>
 </LinearLayout>
